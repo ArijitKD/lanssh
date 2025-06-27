@@ -24,6 +24,8 @@ import re
 import multiprocessing
 import shutil
 import platform
+import os
+import json
 
 
 SUPPORTED_PLATFORMS = {
@@ -32,6 +34,21 @@ SUPPORTED_PLATFORMS = {
 MULTIPROC_PCOUNT = 5
 NPLUS = 43
 VERSION = "1.0"
+DATABASE = "~/.lanssh/db.json"
+DB_EXPAND = os.path.expanduser(DATABASE)
+
+MAX_ALIASNAME_LENGTH = 16
+
+ERR_GENERIC            = -1
+ERR_JSON_DECODE_FAILED = -2
+ERR_DB_FORMAT_INVALID  = -3
+ERR_MAC_INVALID        = -4
+ERR_DATATYPE_INVALID   = -5
+ERR_ALIASNAME_EMPTY    = -6
+ERR_USERNAME_EMPTY     = -7
+ERR_ALIASNAME_TOO_LONG = -8
+
+global_last_errdesc = ""
 
 
 def show_help() -> None:
@@ -60,7 +77,7 @@ def show_help() -> None:
         "  - [...]       :  Non-mandatory options.\n"
         "\n"
         "## NOTE:\n"
-        "  - From hereon, anywhere the word \"database\" is encountered, it refers\n"
+        "  - From hereon, anywhere the word \"DB_EXPAND\" is encountered, it refers\n"
         "    to the file ~/.lanssh/db.json which contains all the host aliases along\n"
         "    with the associated MAC address and usernames in JSON format. Manually\n"
         "    editing this file is not recommended.\n"
@@ -79,19 +96,19 @@ def show_help() -> None:
         "                        Case-sensitive in nature for UNIX compatibility.\n"
         "\n"
         "  - <format-type>    :  The format type for displaying the stored information\n"
-        "                        from the database. Case-insensitive for convenience.\n"
+        "                        from the DB_EXPAND. Case-insensitive for convenience.\n"
         "                        More about supported formats in section #4 point (5).\n"
         "\n"
         "#4 Available options:\n"
         "  1. -aa, --add-alias  :  Add an alias for the given MAC address. Trying\n"
         "                          to add an existing alias will result in an error.\n"
-        "                          If the database is corrupted, will raise an error.\n"
+        "                          If the DB_EXPAND is corrupted, will raise an error.\n"
         "                          See pattern (2) from section #1 for usage.\n"
         "\n"
         "  2. -au, --add-user   :  Add a username for logging in to the remote host.\n"
         "                          Multiple users for the same host maybe added, however\n"
         "                          trying to add an already existing username will raise\n"
-        "                          an error. If the database is corrupted, will raise an\n"
+        "                          an error. If the DB_EXPAND is corrupted, will raise an\n"
         "                          error. See pattern (3) from section #1 for usage.\n"
         "\n"
         "  3. -h, --help        :  Show this help section and exit. It is a non-mandatory\n"
@@ -102,8 +119,8 @@ def show_help() -> None:
         "                          associated MAC address and usernames. If either -f or\n"
         "                          --format is specified, use the specified format (more\n"
         "                          in point 5). If not, display the data in tabular form.\n"
-        "                          If the database is missing, an appropriate message is\n"
-        "                          displayed. If the database is corrupted, will raise an\n"
+        "                          If the DB_EXPAND is missing, an appropriate message is\n"
+        "                          displayed. If the DB_EXPAND is corrupted, will raise an\n"
         "                          error. See pattern (5) from section #1 for usage.\n"
         "\n"
         "  5. -f, --format      :  A non-mandatory option specifying the format of\n"
@@ -123,23 +140,23 @@ def show_help() -> None:
         "\n"
         "  8. -ra, --rm-alias   :  Remove an alias for the given MAC address. Trying\n"
         "                          to add a non-existent alias will result in an error.\n"
-        "                          If the database is corrupted, will raise an error.\n"
+        "                          If the DB_EXPAND is corrupted, will raise an error.\n"
         "                          See pattern (7) from section #1 for usage.\n"
         "\n"
         "  9. -ru, --rm-user    :  Remove a username for logging in to the remote host.\n"
         "                          Trying to remove a non-existent username will raise\n"
-        "                          an error. If the database is corrupted, will raise an\n"
+        "                          an error. If the DB_EXPAND is corrupted, will raise an\n"
         "                          error. See pattern (8) from section #1 for usage.\n"
         "\n"
-        "  10. -rd, --rmdb      :  Clear the database file ~/.lanssh/db.json. Useful if\n"
+        "  10. -rd, --rmdb      :  Clear the DB_EXPAND file ~/.lanssh/db.json. Useful if\n"
         "                          manual correction of the file becomes impossible.\n"
         "\n"
         "## NOTE:\n"
-        "  - If the database file gets corrupted, and some options will raise an error.\n"
+        "  - If the DB_EXPAND file gets corrupted, and some options will raise an error.\n"
         "    In such cases, manual correction must be attempted at first, failing which\n"
         "    it must be removed.\n"
         "\n"
-        "  - The database file ~/.lanssh/db.json follows the JSON format given below:\n"
+        "  - The DB_EXPAND file ~/.lanssh/db.json follows the JSON format given below:\n"
         "    {\n"
         "        \"aliases\": [\n"
         "            {\n"
@@ -173,6 +190,7 @@ def show_help() -> None:
         "    }\n"
     )
 
+
 def show_version() -> None:
     print (
         f"lanssh {VERSION}\n"
@@ -182,7 +200,8 @@ def show_version() -> None:
         "the GNU General Public License version 3 or later.\n"
         "This program has absolutely no warranty."
     )
-    
+
+
 def show_missing_dependency() -> None:
     print (
         "lanssh: A required program was not found on your system.\n"
@@ -221,7 +240,7 @@ def get_all_reachable_lan_devs() -> dict:
         return {}
 
     for line in procresultlines:
-        mac_pattern = re.compile(r"([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})")
+        mac_pattern = re.compile(r"([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})")
         mac_match   = mac_pattern.search(line)
         if (mac_match is not None):
             mac: str = mac_match.group(0)
@@ -238,12 +257,138 @@ def get_all_reachable_lan_devs() -> dict:
     return lan_dev
 
 
+def mk_dbdir() -> None:
+    dbdir: str = os.path.dirname(DB_EXPAND)
+    if (not os.path.isdir(dbdir)):
+        os.mkdir(dbdir)
+
+
+def check_db_format(json_data: dict) -> int:
+    '''
+    Checks if json_data has a valid format as recognized by the program
+    '''
+    global global_last_errdesc
+    checks: List[bool] = []
+    checks.append(list(json_data.keys()) == ["aliases"])
+    checks.append(checks[0] and type(json_data["aliases"]) == list)
+    checks.append(checks[0] and json_data["aliases"] != [])
+    if (False in checks):
+        global_last_errdesc = "Container \"aliases\" is either missing "\
+        "or empty, or multiple unwanted containers\n"\
+        f"present in {DATABASE}."
+        return ERR_DB_FORMAT_INVALID
+
+    for i in range(len(json_data["aliases"])):
+        checks.clear()
+        alias: dict = json_data["aliases"][i]
+        checks.append(type(alias) == dict)
+        checks.append(alias != {})
+        checks.append(checks[0] and set(alias.keys()) == {"name", "mac", "users"})
+        if (False in checks):
+            global_last_errdesc = f"Alias entry at index {[i]} has missing"\
+            f" or invalid primary keys in \n{DATABASE}. Verify if \"name\","\
+            " \"mac\"and \"users\" are the only\nprimary keys present for"\
+            " the given entry. Indexing starts from 0."
+            return ERR_DB_FORMAT_INVALID
+
+    return 0
+
+
+def check_db_values(json_data: dict) -> int:
+    '''
+    Assumes json_data has a valid format as recognized by the program.
+    Checks if the value fields have correct datatypes and verifies
+    integrity of MAC address format.
+    '''
+    global global_last_errdesc
+    checks: List[bool] = []
+    mac_pattern = re.compile(r"([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})")
+    for i in range(len(json_data["aliases"])):
+        checks.clear()
+        alias: dict = json_data["aliases"][i]
+        checks.append(type(alias["name"]) == str)
+        checks.append(type(alias["mac"]) == str)
+        checks.append(type(alias["users"]) == list)
+
+        if (checks[-1] and (alias["users"] != [])): # Ensure no error for empty users list
+            checks.append(
+                set(type(user) for user in alias["users"]) == {str}
+                )
+
+        if (False in checks):
+            global_last_errdesc = f"Alias entry at index {[i]} has invalid"\
+            f" datatype for primary keys in \n{DATABASE}. Verify if \"name\","\
+            " \"mac\" and \"users\" have valid\ndatatypes in the given entry."\
+            " Indexing starts from 0."
+            return ERR_DATATYPE_INVALID
+
+        mac_match = mac_pattern.fullmatch(alias["mac"])
+        if (mac_match is None):
+            global_last_errdesc = f"Alias entry at index {[i]} has an invalid "\
+            f"MAC address in {DATABASE}.\nIndexing starts from 0.\n"\
+            f"Helpful search string (cause of error): \"{alias['mac']}\""
+            return ERR_MAC_INVALID
+
+        if (alias["name"] == ""):
+            global_last_errdesc = f"Alias entry at index {[i]} has an empty value for "\
+            f"the \"name\"\nprimary key in {DATABASE}. Indexing starts from 0."
+            return ERR_ALIASNAME_EMPTY
+
+        if (len(alias["name"]) > MAX_ALIASNAME_LENGTH):
+            global_last_errdesc = f"Alias entry at index {[i]} has a value for "\
+            f"the \"name\" primary key longer than the\nmaximum allowed ({MAX_ALIASNAME_LENGTH}"\
+            f" characters) in {DATABASE}. Indexing starts from 0.\n"\
+            f"Helpful search string (cause of error): \"{alias['name']}\""
+            return ERR_ALIASNAME_TOO_LONG
+
+        if ("" in alias["users"]):
+            global_last_errdesc = f"Alias entry at index {[i]} has one or more empty values "\
+            f"for the\n\"users\" primary key in {DATABASE}. Indexing starts from 0."
+            return ERR_USERNAME_EMPTY
+
+    return 0
+ 
+
+def add_alias(alias: str, mac: str) -> int:
+    global global_last_errdesc
+    mk_dbdir()
+    db = open(DB_EXPAND, "a+")
+    db.seek(0)
+    rawdata: str = db.read()
+    data: dict = {}
+    errcode: int = 0
+    try:
+        data = json.loads(rawdata)
+        errcode = check_db_format(data)
+        if (errcode != 0):
+            db.close()
+            return errcode
+        errcode = check_db_values(data)
+        if (errcode != 0):
+            db.close()
+            return errcode
+    except json.decoder.JSONDecodeError:
+        db.close()
+        global_last_errdesc = f"Failed to parse data. Verify if {DATABASE}"\
+        " has a valid JSON format."
+        return ERR_JSON_DECODE_FAILED
+    
+    db.close()
+    return 0
+
+
 def get_args() -> dict:
     pass
 
 def main() -> None:
     argc: int = len(sys.argv)
-
+    if (add_alias("0", "0") != 0):
+        print (
+            "Error adding alias.\nError message:\n",
+            global_last_errdesc, sep = ""
+            )
+        sys.exit(1)
+            
     if ((argc > 1) and (sys.argv[1] in
     ("--help", "-h"))):
         show_help()
