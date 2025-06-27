@@ -36,7 +36,7 @@ NPLUS = 43
 VERSION = "1.0"
 DATABASE = "~/.lanssh/db.json"
 DB_EXPAND = os.path.expanduser(DATABASE)
-
+MAC_PATTERN = re.compile(r"([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})")
 MAX_ALIASNAME_LENGTH = 16
 
 ERR_GENERIC            = -1
@@ -86,7 +86,8 @@ def show_help() -> None:
         "\n"
         "#3 Description of values:\n"
         "  - <alias>          :  A unique string denoting the host. Length must not\n"
-        "                        exceed 16 characters. Must not contain spaces. To\n"
+        f"                        exceed {MAX_ALIASNAME_LENGTH} characters. Must not "
+        "contain spaces. To\n"
         "                        avoid confusion, aliases are case-insensitive.\n"
         "\n"
         "  - <mac-address>    :  The MAC address of the host. Must be a static MAC.\n"
@@ -240,8 +241,7 @@ def get_all_reachable_lan_devs() -> dict:
         return {}
 
     for line in procresultlines:
-        mac_pattern = re.compile(r"([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})")
-        mac_match   = mac_pattern.search(line)
+        mac_match   = MAC_PATTERN.search(line)
         if (mac_match is not None):
             mac: str = mac_match.group(0)
             ip: str  = line.split()[0]
@@ -302,7 +302,7 @@ def check_db_values(json_data: dict) -> int:
     '''
     global global_last_errdesc
     checks: List[bool] = []
-    mac_pattern = re.compile(r"([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})")
+    
     for i in range(len(json_data["aliases"])):
         checks.clear()
         alias: dict = json_data["aliases"][i]
@@ -322,8 +322,7 @@ def check_db_values(json_data: dict) -> int:
             " Indexing starts from 0."
             return ERR_DATATYPE_INVALID
 
-        mac_match = mac_pattern.fullmatch(alias["mac"])
-        if (mac_match is None):
+        if (MAC_PATTERN.fullmatch(alias["mac"]) is None):
             global_last_errdesc = f"Alias entry at index {[i]} has an invalid "\
             f"MAC address in {DATABASE}.\nIndexing starts from 0.\n"\
             f"Helpful search string (cause of error): \"{alias['mac']}\""
@@ -347,7 +346,7 @@ def check_db_values(json_data: dict) -> int:
             return ERR_USERNAME_EMPTY
 
     return 0
- 
+
 
 def add_alias(alias: str, mac: str) -> int:
     global global_last_errdesc
@@ -368,11 +367,29 @@ def add_alias(alias: str, mac: str) -> int:
             db.close()
             return errcode
     except json.decoder.JSONDecodeError:
-        db.close()
-        global_last_errdesc = f"Failed to parse data. Verify if {DATABASE}"\
-        " has a valid JSON format."
-        return ERR_JSON_DECODE_FAILED
-    
+        if (rawdata.strip() != ""):
+            db.close()
+            global_last_errdesc = f"Failed to parse data. Verify if {DATABASE}"\
+            " has a valid JSON format."
+            return ERR_JSON_DECODE_FAILED
+
+    if (alias== ""):
+        global_last_errdesc = f"Alias cannot be an empty string (\"\")."
+        return ERR_ALIASNAME_EMPTY
+
+    if (len(alias) > MAX_ALIASNAME_LENGTH):
+        global_last_errdesc = f"Alias must not exceed {MAX_ALIASNAME_LENGTH} characters in length."
+        return ERR_ALIASNAME_TOO_LONG
+
+    if (MAC_PATTERN.fullmatch(mac) is None):
+        global_last_errdesc = f"Invalid MAC address received: \"{mac}\"."
+        return ERR_MAC_INVALID
+
+    data["alias"].append({
+        "name" : alias,
+        "mac" : mac,
+        })
+    string_data: str = json.dumps(data, indent=4)
     db.close()
     return 0
 
@@ -382,13 +399,7 @@ def get_args() -> dict:
 
 def main() -> None:
     argc: int = len(sys.argv)
-    if (add_alias("0", "0") != 0):
-        print (
-            "Error adding alias.\nError message:\n",
-            global_last_errdesc, sep = ""
-            )
-        sys.exit(1)
-            
+       
     if ((argc > 1) and (sys.argv[1] in
     ("--help", "-h"))):
         show_help()
@@ -402,6 +413,13 @@ def main() -> None:
 
     if (not prereq_installed()):
         show_missing_dependency()
+        sys.exit(1)
+
+    if (add_alias("087777777777777777777777", "0") != 0):
+        print (
+            "lanssh: Error adding alias.\nError message:\n",
+            global_last_errdesc, sep = ""
+            )
         sys.exit(1)
 
     reachable_devs: dict = get_all_reachable_lan_devs()
