@@ -55,13 +55,6 @@ def get_all_last_errdesc() -> None:
     return last_errdesc.strip()
 
 
-def prereq_installed() -> bool:
-    for req in ("ip", "ping"):
-        if (not shutil.which(req)):
-            return False
-    return True
-
-
 def is_ip_reachable(ip: str) -> bool:
     proc = subprocess.run(["ping", "-c", "1", "-W", "1", ip],
     stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL, text = True)
