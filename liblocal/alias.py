@@ -68,7 +68,7 @@ def add_alias(name: str, mac: str, default_user: str) -> int:
     data["aliases"].append(
         {
             "name" : name.lower(),
-            "mac" : mac,
+            "mac" : mac.lower(),
             "default_user": default_user
         }
     )
@@ -115,7 +115,7 @@ def get_mac(aliasname: str) -> str:
             mac = alias["mac"]
             break
 
-    return mac
+    return mac.lower()
 
 
 def get_last_error() -> tuple:
