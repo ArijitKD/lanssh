@@ -24,35 +24,38 @@ from typing import List
 from .errno import *
 from .const import *
 
-global_last_errdesc = ""
+errno: int = 0
+errdesc: str = ""
 
 
 def check_db_format(json_data: dict) -> int:
     '''
     Checks if json_data has a valid format as recognized by the program
     '''
-    global global_last_errdesc
+    global errdesc, errno
     checks: List[bool] = []
     checks.append(list(json_data.keys()) == ["aliases"])
     checks.append(checks[0] and type(json_data["aliases"]) == list)
     if (False in checks):
-        global_last_errdesc = "Container \"aliases\" is either missing "\
+        errdesc = "Container \"aliases\" is either missing "\
         "or multiple unwanted containers\n"\
         f"present in {DATABASE}."
-        return ERR_DB_FORMAT_INVALID
+        errno = ERR_DB_FORMAT_INVALID
+        return -1
 
     for i in range(len(json_data["aliases"])):
         checks.clear()
         alias: dict = json_data["aliases"][i]
         checks.append(type(alias) == dict)
         checks.append(alias != {})
-        checks.append(checks[0] and set(alias.keys()) == {"name", "mac", "users"})
+        checks.append(checks[0] and set(alias.keys()) == {"name", "mac", "default_user"})
         if (False in checks):
-            global_last_errdesc = f"Alias entry at index {[i]} has missing"\
-            f" or invalid primary keys in \n{DATABASE}. Verify if \"name\","\
-            " \"mac\"and \"users\" are the only\nprimary keys present for"\
-            " the given entry. Indexing starts from 0."
-            return ERR_DB_FORMAT_INVALID
+            errdesc = f"Alias entry at index {[i]} has missing "\
+            f"or invalid primary keys in \n{DATABASE}. Verify if \"name\", "\
+            "\"mac\" and \"default_user\" are the only\nprimary keys "\
+            "present for the given entry. Indexing starts from 0."
+            errno = ERR_DB_FORMAT_INVALID
+            return -1
 
     return 0
 
@@ -63,7 +66,7 @@ def check_db_values(json_data: dict) -> int:
     Checks if the value fields have correct datatypes and verifies
     integrity of MAC address format.
     '''
-    global global_last_errdesc
+    global errdesc, errno
     checks: List[bool] = []
     
     for i in range(len(json_data["aliases"])):
@@ -71,54 +74,63 @@ def check_db_values(json_data: dict) -> int:
         alias: dict = json_data["aliases"][i]
         checks.append(type(alias["name"]) == str)
         checks.append(type(alias["mac"]) == str)
-        checks.append(type(alias["users"]) == list)
-
-        if (checks[-1] and (alias["users"] != [])): # Ensure no error for empty users list
-            checks.append(
-                set(type(user) for user in alias["users"]) == {str}
-                )
+        checks.append(type(alias["default_user"]) == str)
 
         if (False in checks):
-            global_last_errdesc = f"Alias entry at index {[i]} has invalid"\
-            f" datatype for primary keys in \n{DATABASE}. Verify if \"name\","\
-            " \"mac\" and \"users\" have valid\ndatatypes in the given entry."\
-            " Indexing starts from 0."
-            return ERR_DATATYPE_INVALID
+            errdesc = f"Alias entry at index {[i]} has invalid "\
+            f"datatype for primary keys in \n{DATABASE}. Verify if \"name\", "\
+            "\"mac\" and \"default_user\" have\nvalid datatypes in the given entry. "\
+            "Indexing starts from 0."
+            errno = ERR_DATATYPE_INVALID
+            return -1
 
         if (MAC_PATTERN.fullmatch(alias["mac"]) is None):
-            global_last_errdesc = f"Alias entry at index {[i]} has an invalid "\
+            errdesc = f"Alias entry at index {[i]} has an invalid "\
             f"MAC address in {DATABASE}.\nIndexing starts from 0.\n"\
             f"Helpful search string (cause of error): \"{alias['mac']}\""
-            return ERR_MAC_INVALID
+            errno = ERR_MAC_INVALID
+            return -1
 
         if (alias["name"] == ""):
-            global_last_errdesc = f"Alias entry at index {[i]} has an empty value for "\
+            errdesc = f"Alias entry at index {[i]} has an empty value for "\
             f"the \"name\"\nprimary key in {DATABASE}. Indexing starts from 0."
-            return ERR_ALIASNAME_EMPTY
+            errno = ERR_ALIASNAME_EMPTY
+            return -1
+
+        if (alias["name"].find(" ") != -1):
+            errdesc = f"Alias entry at index {[i]} has one or more whitespaces for "\
+            f"the \"name\"\nprimary key in {DATABASE}. Indexing starts from 0."
+            errno = ERR_ALIASNAME_HAS_SPACE
+            return -1
 
         if (len(alias["name"]) > MAX_ALIASNAME_LENGTH):
-            global_last_errdesc = f"Alias entry at index {[i]} has a value for "\
-            f"the \"name\" primary key longer than the\nmaximum allowed ({MAX_ALIASNAME_LENGTH}"\
-            f" characters) in {DATABASE}. Indexing starts from 0.\n"\
+            errdesc = f"Alias entry at index {[i]} has a value for "\
+            f"the \"name\" primary key longer than the\nmaximum allowed ({MAX_ALIASNAME_LENGTH} "\
+            f"characters) in {DATABASE}. Indexing starts from 0.\n"\
             f"Helpful search string (cause of error): \"{alias['name']}\""
-            return ERR_ALIASNAME_TOO_LONG
+            errno = ERR_ALIASNAME_TOO_LONG
+            return -1
 
-        if ("" in alias["users"]):
-            global_last_errdesc = f"Alias entry at index {[i]} has one or more empty values "\
-            f"for the\n\"users\" primary key in {DATABASE}. Indexing starts from 0."
-            return ERR_USERNAME_EMPTY
+        if (alias["default_user"] == ""):
+            errdesc = f"Alias entry at index {[i]} has an empty value for the "\
+            f"\"default_user\"\nprimary key in {DATABASE}. Indexing starts from 0."
+            errno = ERR_USERNAME_EMPTY
+            return -1
 
     return 0
 
 
-def get_last_errdesc() -> str:
+def get_last_error() -> tuple:
     '''
-    Returns description of the most recent error and flushes the global error
-    description variable, if non-empty, otherwise returns an empty string.
+    Returns the most recent error as a tuple after resetting errno and errdesc.
+    Tuple format: (errno, errdesc)
     '''
-    global global_last_errdesc
-    last_errdesc: str = global_last_errdesc
-    if (global_last_errdesc != ""):
-        global_last_errdesc = ""
-    return last_errdesc
+    global errdesc, errno
+    last_errdesc: str = errdesc
+    last_errno: int = errno
+    if (errdesc != ""):
+        errdesc = ""
+    if (errno != 0):
+        errno = 0
+    return (last_errno, last_errdesc)
 

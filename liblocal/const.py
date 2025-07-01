@@ -28,7 +28,7 @@ SUPPORTED_PLATFORMS = {
 
 MULTIPROC_PCOUNT = 5
 NPLUS = 43
-VERSION = "1.0"
+VERSION = "1.0_alpha"
 DATABASE = "~/.lanssh/db.json"
 DB_EXPAND = os.path.expanduser(DATABASE)
 MAC_PATTERN = re.compile(r"([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})")
@@ -37,13 +37,11 @@ MAX_ALIASNAME_LENGTH = 16
 VALID_OPTIONS = {
         "U"  : ("-u", "--user"),
         "AA" : ("-aa", "--add-alias"),
-        "AU" : ("-au", "--add-user"),
         "V"  : ("-v", "--version"),
         "L"  : ("-l", "--list"),
         "F"  : ("-f", "--format"),
         "H"  : ("-h", "--help"),
         "RA" : ("-ra", "--rm-alias"),
-        "RU" : ("-ru", "--rm-user"),
         "RD" : ("-rd", "--rmdb")
 }
 
@@ -55,8 +53,6 @@ ARGS_PATTERN_4          = 4
 ARGS_PATTERN_5          = 5
 ARGS_PATTERN_6          = 6
 ARGS_PATTERN_7          = 7
-ARGS_PATTERN_8          = 8
-ARGS_PATTERN_9          = 9
 ARGS_PATTERN_1_OPTIONAL = 11
-ARGS_PATTERN_5_OPTIONAL = 15
+ARGS_PATTERN_4_OPTIONAL = 14
 

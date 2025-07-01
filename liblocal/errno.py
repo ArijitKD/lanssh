@@ -19,13 +19,26 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
-ERR_ARGS_INVALID       = -1
-ERR_JSON_DECODE_FAILED = -2
-ERR_DB_FORMAT_INVALID  = -3
-ERR_MAC_INVALID        = -4
-ERR_DATATYPE_INVALID   = -5
-ERR_ALIASNAME_EMPTY    = -6
-ERR_USERNAME_EMPTY     = -7
-ERR_ALIASNAME_TOO_LONG = -8
-ERR_ALIAS_EXISTS       = -9
+ERR_GENERIC              = -1
+ERR_JSON_DECODE_FAILED   = -2
+ERR_DB_FORMAT_INVALID    = -3
+ERR_MAC_INVALID          = -4
+ERR_DATATYPE_INVALID     = -5
+ERR_ALIASNAME_EMPTY      = -6
+ERR_USERNAME_EMPTY       = -7
+ERR_ALIASNAME_TOO_LONG   = -8
+ERR_ALIAS_EXISTS         = -9
+ERR_ALIASNAME_HAS_SPACE  = -10
 
+
+errno: int = 0
+errdesc: str = ""
+
+
+def get_last_error() -> tuple:
+    '''
+    Should be implemented by the importer of this module. Every call
+    to this function must reset errno and errdesc, before returning
+    their present values as a tuple (errno, errdesc).
+    '''
+    return (errno, errdesc)

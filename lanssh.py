@@ -30,26 +30,29 @@ import liblocal.argsck as argsck
 import liblocal.dbck as dbck
 import liblocal.alias as alias
 
+from liblocal.misc import *
 from liblocal.errno import *
 from liblocal.const import *
-from liblocal.misc import *
 
 
-def get_all_last_errdesc() -> None:
+def get_last_error() -> tuple:
     '''
-    Combines all error descriptions, seperates them with a newline where 
-    applicable, and returns the entire thing as a single string.
+    Returns the most recent error from the modules that implement the function
+    get_last_error(). Since the program is not multithreaded, only one
+    get_last_error() from all modules at any given time will be non-empty. All
+    others will be equal to (0, \"\"). This function must be updated if
+    get_last_error() is implemented in any of the sub-modules in locallib/,
+    specifically the local variable all_errors.
     '''
-    last_errdesc: str = ""
-    all_errdescs: list = [
-        alias.get_last_errdesc(),
-        dbck.get_last_errdesc()
+    all_errors: list = [
+        alias.get_last_error(),
+        dbck.get_last_error()
     ]
-    for desc in all_errdescs:
-        last_errdesc += desc
-        if (desc != ""):
-            last_errdesc += "\n"
-    return last_errdesc.strip()
+    for error in all_errors:
+        if (error != (0, "")):
+            return error
+
+    return (0, "")
 
 
 def is_ip_reachable(ip: str) -> bool:
@@ -90,20 +93,20 @@ def main() -> None:
 
     argcode: int = argsck.check_valid_args_pattern()
 
-    if (argcode in [NO_ARGS_SPECIFIED, ARGS_PATTERN_6]):
+    if (argcode == -1):
+        print(
+            "lanssh: Invalid arguments or combination of arguments.\n"
+            "Use \"lanssh -h\" to get help."
+        )
+        sys.exit(1)
+
+    if (argcode == NO_ARGS_SPECIFIED or argcode == ARGS_PATTERN_5):
         if (argcode == NO_ARGS_SPECIFIED):
             print("lanssh: No options specified. Help is given below.")
         show_help()
         sys.exit(0)
 
-    if (argcode == ERR_ARGS_INVALID):
-        print(
-            "lanssh: Invalid arguments or combination of arguments.\n"
-            "Use lanssh -h to get help."
-        )
-        sys.exit(1)
-
-    if (argcode == ARGS_PATTERN_4):
+    if (argcode == ARGS_PATTERN_3):
         show_version()
         sys.exit(0)
 
@@ -120,19 +123,71 @@ def main() -> None:
     # Create the database file if it does not exist by calling mkdb()
     mkdb()
 
-    if (argcode == ARGS_PATTERN_2):
-        aliasname = argv[1]
-        mac = argv[2]
-        errcode = alias.add(aliasname, mac)
-        if (errcode != 0):
-            print (
-                "lanssh: Error adding alias.\nError message:\n",
-                get_all_last_errdesc(), sep = ""
+    reachable_hosts: dict = get_all_reachable_lan_devs()
+
+    if (argcode == ARGS_PATTERN_1 or argcode == ARGS_PATTERN_1_OPTIONAL):
+        aliasname: str = argv[0]
+        user: str = ""
+
+        if (argcode == ARGS_PATTERN_1):
+            user = alias.get_default_user(aliasname)
+        else:
+            user = argv[2]
+
+        if (user == "" and argcode == ARGS_PATTERN_1):
+            error: tuple = get_last_error()
+            print(
+                f"lanssh: Error logging in (errorcode: {error[0]}).\n"
+                f"Error message:\n{error[1]}"
+            )
+            sys.exit(1)
+
+        elif (user == "" and argcode == ARGS_PATTERN_1_OPTIONAL):
+            print(
+                f"lanssh: Error logging in (errorcode: {ERR_USERNAME_EMPTY}).\n"
+                "Error message:\nEmpty username received."
+            )
+            sys.exit(1)
+
+        else:
+            mac: str = alias.get_mac(aliasname)
+            if (mac == ""):
+                error = get_last_error()
+                print(
+                    f"lanssh: Error logging in (errorcode: {error[0]}).\n"
+                    f"Error message:\n{error[1]}"
                 )
-        sys.exit(1)
+                sys.exit(1)
+            if (mac in reachable_hosts.keys()):
+                ip: str = reachable_hosts["mac"]
+                print (
+                    f"lanssh: Connecting to host {mac} a.k.a \"{aliasname}\" at {ip} as user "
+                    f"\"{user}\"..."
+                )
+                subprocess.Popen(["ssh", f"{user}@{ip}"])
+                sys.exit(0)
+            else:
+                print (f"lanssh: Host {mac} a.k.a \"{aliasname}\" is currently unreachable.")
+                sys.exit(1)
 
-    reachable_devs: dict = get_all_reachable_lan_devs()
 
+    if (argcode == ARGS_PATTERN_2):
+        aliasname: str = argv[1]
+        mac: str = argv[2]
+        default_user: str = argv[3]
+        
+        if (alias.add_alias(aliasname, mac, default_user) != 0):
+            error: tuple = get_last_error()
+            print(
+                f"lanssh: Error adding alias (errorcode: {error[0]}).\n"
+                f"Error message:\n{error[1]}"
+            )
+            sys.exit(1)
+        else:
+            print("lanssh: Alias added successfully.")
+            sys.exit(0)
+
+'''
     if (reachable_devs == {}):
         print("No active devices on local network.")
         sys.exit(0)
@@ -143,6 +198,7 @@ def main() -> None:
     for dev in reachable_devs:
         print(f"|  {dev}  |  {reachable_devs[dev]}{' '*(17-len(reachable_devs[dev]))}|")
         print("+" * NPLUS)
+'''
 
 if (__name__ == "__main__"):
     main()

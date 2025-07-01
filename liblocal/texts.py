@@ -29,14 +29,12 @@ lanssh: SSH into LAN devices simply using just an alias for the remote host.
 '''
 #1 Possible usage patterns:
   1. lanssh <alias> [{-u | --user} <host-username>]
-  2. lanssh {-aa | --add-alias} <alias> <mac-address>
-  3. lanssh {-au | --add-user} <host-username> <alias>
-  4. lanssh {-v | --version}
-  5. lanssh {-l | --list} [{-f | --format} <format-type>]
-  6. lanssh [{-h | --help}]
-  7. lanssh {-ra | --rm-alias} <alias> <mac-address>
-  8. lanssh {-ru | --rm-user} <host-username> <alias>
-  9. lanssh {-rd | --rmdb}
+  2. lanssh {-aa | --add-alias} <alias> <mac-address> <default-user>
+  3. lanssh {-v | --version}
+  4. lanssh {-l | --list} [{-f | --format} <format-type>]
+  5. lanssh [{-h | --help}]
+  6. lanssh {-ra | --rm-alias} <alias>
+  7. lanssh {-rd | --rmdb}
 
 #2 Meanings of notations used above:
   - <...>       :  A mandatory value for the preceding option. A
@@ -57,14 +55,18 @@ f'''
 
 #3 Description of values:
   - <alias>          :  A unique string denoting the host. Length must not
-                        exceed {MAX_ALIASNAME_LENGTH} characters. Must not contain spaces. To
-                        avoid confusion, aliases are case-insensitive.
+                        exceed {MAX_ALIASNAME_LENGTH} characters. Must not contain whitespaces.
+                        To avoid confusion, aliases are case-insensitive.
 
   - <mac-address>    :  The MAC address of the host. Must be a static MAC.
                         It is also case-insensitive as per conventions.
 
   - <host-username>  :  The user to be logged in as to the remote host.
                         Case-sensitive in nature for UNIX compatibility.
+
+  - <default-user>   :  The default user for logging in when the -u or --user
+                        option is unspecified with the alias as in section #1
+                        pattern (1).
 
   - <format-type>    :  The format type for displaying the stored information
                         from the database. Case-insensitive for convenience.
@@ -76,23 +78,17 @@ f'''
                           If the database is corrupted, will raise an error.
                           See pattern (2) from section #1 for usage.
 
-  2. -au, --add-user   :  Add a username for logging in to the remote host.
-                          Multiple users for the same host maybe added, however
-                          trying to add an already existing username will raise
-                          an error. If the database is corrupted, will raise an
-                          error. See pattern (3) from section #1 for usage.
-
-  3. -h, --help        :  Show this help section and exit. It is a non-mandatory
+  2. -h, --help        :  Show this help section and exit. It is a non-mandatory
                           option, since help section is always displayed when no
                           options are specified.
 
-  4. -l, --list        :  Show the list of added host aliases along with the
-                          associated MAC address and usernames. If either -f or
-                          --format is specified, use the specified format (more
-                          in point 5). If not, display the data in tabular form.
-                          If the database is missing, an appropriate message is
-                          displayed. If the database is corrupted, will raise an
-                          error. See pattern (5) from section #1 for usage.
+  3. -l, --list        :  Show the list of added host aliases along with the
+                          associated MAC address and default username. If either
+                          -f or --format is specified, use the specified format
+                          (more in point 5). If not, display the data in tabular
+                          form. If the database is missing, an appropriate message
+                          is displayed. If the database is corrupted, will raise
+                          an error. See pattern (5) from section #1 for usage.
 
   5. -f, --format      :  A non-mandatory option specifying the format of
                           displaying the data. Currently supported values are:
@@ -102,24 +98,17 @@ f'''
                           See pattern (5) from section #1 for usage.
 
   6. -u, --user        :  SSH into the host <alias> as the specified user. It
-                          is a non-mandatory option. When unspecified, the first
-                          user in order of addition of usernames is selected.
-                          Specifying a non-existent for <alias> will raise an
-                          error. See pattern (1) from section #1 for usage.
+                          is a non-mandatory option. See pattern (1) from
+                          section #1 for usage.
 
   7. -v, --version     :  Show version and copyright info, then exit.
 
   8. -ra, --rm-alias   :  Remove an alias for the given MAC address. Trying
-                          to add a non-existent alias will result in an error.
+                          to remove a non-existent alias will result in an error.
                           If the database is corrupted, will raise an error.
                           See pattern (7) from section #1 for usage.
 
-  9. -ru, --rm-user    :  Remove a username for logging in to the remote host.
-                          Trying to remove a non-existent username will raise
-                          an error. If the database is corrupted, will raise an
-                          error. See pattern (8) from section #1 for usage.
-
-  10. -rd, --rmdb      :  Clear the database file {DATABASE}. Useful if
+  9. -rd, --rmdb      :  Clear the database file {DATABASE}. Useful if
                           manual correction of the file becomes impossible.
 
 ## NOTE:
@@ -134,14 +123,7 @@ f'''
             {
                 "name": "<alias-1>",
                 "mac": "<mac-address-1>",
-                "users": [
-                    "<alias-1_user-1>",
-                    "<alias-1_user-2>",
-                    .
-                    .
-                    .
-                    "<alias-1_user-n>"
-                ]
+                "default_user": "<default-user-1>"
             }
             .
             .
@@ -149,14 +131,7 @@ f'''
             {
                 "name": "<alias-n>",
                 "mac": "<mac-address-n>",
-                "users": [
-                    "<alias-n_user-1>",
-                    "<alias-n_user-2>",
-                    .
-                    .
-                    .
-                    "<alias-n_user-n>"
-                ]
+                "default_user": "<default-user-n>"
             }
         ]
     }'''

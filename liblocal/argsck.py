@@ -21,7 +21,6 @@
 
 import sys
 
-from .errno import *
 from .const import *
 
 
@@ -38,7 +37,7 @@ def check_valid_args_pattern() -> int:
     for arg in argv:
         if ((arg.startswith("-") or arg.startswith("--")) and
             arg not in all_options):
-            return ERR_ARGS_INVALID
+            return -1
 
     if (argc == 0):
         return NO_ARGS_SPECIFIED
@@ -49,33 +48,27 @@ def check_valid_args_pattern() -> int:
     if (argc == 3 and (argv[1] in VALID_OPTIONS["U"])):
         return ARGS_PATTERN_1_OPTIONAL
 
-    if (argc == 3 and argv[0] in VALID_OPTIONS["AA"]):
+    if (argc == 4 and argv[0] in VALID_OPTIONS["AA"]):
         return ARGS_PATTERN_2
 
-    if (argc == 3 and argv[0] in VALID_OPTIONS["AU"]):
+    if (argc == 1 and argv[0] in VALID_OPTIONS["V"]):
         return ARGS_PATTERN_3
 
-    if (argc == 1 and argv[0] in VALID_OPTIONS["V"]):
-        return ARGS_PATTERN_4
-
     if (argc == 1 and argv[0] in VALID_OPTIONS["L"]):
-        return ARGS_PATTERN_5
+        return ARGS_PATTERN_4
 
     if (argc == 3 and argv[0] in VALID_OPTIONS["L"] and
         argv[1] in VALID_OPTIONS["F"]):
-        return ARGS_PATTERN_5_OPTIONAL
+        return ARGS_PATTERN_4_OPTIONAL
 
     if (argc == 1 and argv[0] in VALID_OPTIONS["H"]):
-        return ARGS_PATTERN_6
+        return ARGS_PATTERN_5
 
     if (argc == 3 and argv[0] in VALID_OPTIONS["RA"]):
-        return ARGS_PATTERN_7
-
-    if (argc == 3 and argv[0] in VALID_OPTIONS["RU"]):
-        return ARGS_PATTERN_8
+        return ARGS_PATTERN_6
 
     if (argc == 1 and argv[0] in VALID_OPTIONS["RD"]):
-        return ARGS_PATTERN_9
+        return ARGS_PATTERN_7
 
-    return ERR_ARGS_INVALID
+    return -1
 
