@@ -159,12 +159,18 @@ def main() -> None:
                 )
                 sys.exit(1)
             if (mac in reachable_hosts.keys()):
-                ip: str = reachable_hosts["mac"]
+                ip: str = reachable_hosts[mac]
                 print (
-                    f"lanssh: Connecting to host {mac} a.k.a \"{aliasname}\" at {ip} as user "
-                    f"\"{user}\"..."
+                    f"lanssh: Connecting to host {mac.upper()} a.k.a \"{aliasname}\" at\n"
+                    f"{ip} as user \"{user}\"..."
                 )
-                subprocess.Popen(["ssh", f"{user}@{ip}"])
+
+                try:
+                    subprocess.run(["ssh", f"{user}@{ip}"])
+                except KeyboardInterrupt:
+                    sys.exit(1)
+
+                print (f"lanssh: Logged out user \"{user}\" from host \"{aliasname}\".")
                 sys.exit(0)
             else:
                 print (f"lanssh: Host {mac} a.k.a \"{aliasname}\" is currently unreachable.")
@@ -175,7 +181,7 @@ def main() -> None:
         aliasname: str = argv[1]
         mac: str = argv[2]
         default_user: str = argv[3]
-        
+
         if (alias.add_alias(aliasname, mac, default_user) != 0):
             error: tuple = get_last_error()
             print(
