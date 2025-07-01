@@ -24,10 +24,7 @@ import subprocess
 import sys
 import re
 import multiprocessing
-import shutil
-import platform
 import os
-import json
 
 import liblocal.argsck as argsck
 import liblocal.dbck as dbck
