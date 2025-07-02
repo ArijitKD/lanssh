@@ -165,13 +165,16 @@ def main() -> None:
                     f"{ip} as user \"{user}\"..."
                 )
 
+                ssh_retcode: int = 0
                 try:
-                    subprocess.run(["ssh", f"{user}@{ip}"])
+                    ssh_proc = subprocess.run(["ssh", f"{user}@{ip}"])
+                    ssh_retcode = ssh_proc.returncode
                 except KeyboardInterrupt:
+                    print ("lanssh: Login interrupted by user.")
                     sys.exit(1)
 
                 print (f"lanssh: Logged out user \"{user}\" from host \"{aliasname}\".")
-                sys.exit(0)
+                sys.exit(int(ssh_retcode != 0))
             else:
                 print (f"lanssh: Host {mac} a.k.a \"{aliasname}\" is currently unreachable.")
                 sys.exit(1)
