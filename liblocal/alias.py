@@ -94,6 +94,10 @@ def get_default_user(aliasname: str) -> list:
             default_user = alias["default_user"]
             break
 
+    if (default_user == ""):
+        errdesc = f"Alias \"{aliasname}\" does not exist in database."
+        errno = ERR_ALIAS_NOT_FOUND
+
     return default_user
 
 
@@ -114,6 +118,10 @@ def get_mac(aliasname: str) -> str:
         if (alias["name"].lower() == aliasname.lower()):
             mac = alias["mac"]
             break
+
+    if (mac == ""):
+        errdesc = f"Alias \"{aliasname}\" does not exist in database."
+        errno = ERR_ALIAS_NOT_FOUND
 
     return mac.lower()
 
