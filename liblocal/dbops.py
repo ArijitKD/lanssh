@@ -62,7 +62,7 @@ def write_data(jsondata: dict) -> None:
     '''
     stringdata: str = json.dumps(jsondata, indent=4)
     db = open(DB_EXPAND, "w")
-    db.write(stringdata)
+    db.write(stringdata + "\n")
     db.close()
 
 
