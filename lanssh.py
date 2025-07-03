@@ -22,15 +22,13 @@
 from typing import List
 import subprocess
 import sys
-import re
-import multiprocessing
-import os
 
 import liblocal.argsck as argsck
 import liblocal.dbck as dbck
 import liblocal.alias as alias
 import liblocal.dbops as dbops
 
+from liblocal.lan import *
 from liblocal.misc import *
 from liblocal.errno import *
 from liblocal.const import *
@@ -57,203 +55,200 @@ def get_last_error() -> tuple:
     return (0, "")
 
 
-def is_ip_reachable(ip: str) -> bool:
-    proc = subprocess.run(["ping", "-c", "1", "-W", "1", ip],
-    stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL, text = True)
-    return (proc.returncode == 0)
-
-
-def get_all_reachable_lan_devs() -> dict:
-    proc = subprocess.run(["ip", "-4", "neigh", "show"],
-    stdout = subprocess.PIPE, stderr = subprocess.PIPE, text = True)
-    procresultlines: List[str] = list(filter(len, proc.stdout.split("\n")))
-    lan_dev: dict = {}
-
-    if (procresultlines == []):
-        return {}
-
-    for line in procresultlines:
-        mac_match   = MAC_PATTERN.search(line)
-        if (mac_match is not None):
-            mac: str = mac_match.group(0)
-            ip: str  = line.split()[0]
-            lan_dev[mac] = ip
-
-    with multiprocessing.Pool(processes = MULTIPROC_PCOUNT) as pool:
-        all_macs: tuple = tuple(lan_dev.keys())
-        all_ips: tuple = tuple(lan_dev.values())
-        result = pool.map(is_ip_reachable, all_ips)
-        for i in range(len(result)):
-            if (not result[i]): lan_dev.pop(all_macs[i])
-
-    return lan_dev
-
-
 def __exit(exitcode, suggest_help: bool = False) -> None:
     if (suggest_help):
         print("\nUse \"lanssh -h\" to get help.")
     sys.exit(exitcode)
 
 
+def __argp1(argv: list, optional: bool = False) -> None:
+    reachable_hosts: dict = get_reachable_hosts()
+    aliasname: str = argv[0]
+    user: str = alias.get_default_user(aliasname) if not optional else argv[2]
+
+    if (user == "" and not optional):
+        error: tuple = get_last_error()
+        print(
+            f"lanssh: Error logging in (errorcode: {error[0]}).\n"
+            f"Error message:\n{error[1]}"
+        )
+        __exit(1, suggest_help = True)
+
+    if (user == "" and optional):
+        print(
+            f"lanssh: Error logging in (errorcode: {ERR_USERNAME_EMPTY}).\n"
+            "Error message:\nEmpty username received."
+        )
+        __exit(1, suggest_help = True)
+
+    mac: str = alias.get_mac(aliasname)
+
+    if (mac == ""):
+        error = get_last_error()
+        print(
+            f"lanssh: Error logging in (errorcode: {error[0]}).\n"
+            f"Error message:\n{error[1]}"
+        )
+        __exit(1, suggest_help = True)
+
+    if (mac in reachable_hosts.keys()):
+        ip: str = reachable_hosts[mac]
+        print (
+            f"lanssh: Connecting to host {mac.upper()} a.k.a \"{aliasname}\" at\n"
+            f"{ip} as user \"{user}\"..."
+        )
+
+        ssh_retcode: int = 0
+        try:
+            ssh_proc = subprocess.run(["ssh", f"{user}@{ip}"])
+            ssh_retcode = ssh_proc.returncode
+        except KeyboardInterrupt:
+            print ("lanssh: Login interrupted by user.")
+            __exit(1)
+
+        print (f"lanssh: Logged out user \"{user}\" from host \"{aliasname}\".")
+        __exit(int(ssh_retcode != 0))
+
+    else:
+        print (f"lanssh: Host {mac.upper()} a.k.a \"{aliasname}\" is currently unreachable.")
+        __exit(1)
+
+
+def __argp2(argv: list) -> None:
+    aliasname: str = argv[1]
+    mac: str = argv[2]
+    default_user: str = argv[3]
+
+    if (alias.add_alias(aliasname, mac, default_user) != 0):
+        error: tuple = get_last_error()
+        print(
+            f"lanssh: Error adding alias (errorcode: {error[0]}).\n"
+            f"Error message:\n{error[1]}"
+        )
+        __exit(1, suggest_help = True)
+    else:
+        print(f"lanssh: Alias \"{aliasname}\" added successfully.")
+        __exit(0)
+
+
+def __argp3_noargv() -> None:
+    show_version()
+    __exit(0)
+
+
+def __argp4(argv: list, optional: bool = False) -> None:
+    formatted_data: str = ""
+    if (not optional):
+        formatted_data = dbops.get_formatted_data("table")
+    else:
+        data_format: str = argv[2]
+        formatted_data = dbops.get_formatted_data(data_format)
+
+    if (formatted_data == ""):
+        error: tuple = get_last_error()
+        print(
+            f"lanssh: Error while displaying data (errorcode: {error[0]}).\n"
+            f"Error message:\n{error[1]}"
+        )
+        __exit(1, suggest_help = True)
+    else:
+        print(formatted_data)
+        __exit(0)
+
+
+def __argp5_noargv(optional: bool = False) -> None:
+    if (optional):
+        print("lanssh: No options specified. Help is given below.")
+    show_help()
+    __exit(0)
+
+
+def __argp6(argv: list) -> None:
+    aliasname: str = argv[1]
+    if (alias.rm_alias(aliasname) == 0):
+        print(f"lanssh: Alias \"{aliasname}\" removed successfully.")
+        __exit(0)
+
+    else:
+        error: tuple = get_last_error()
+        print(
+            f"lanssh: Error removing alias (errorcode: {error[0]}).\n"
+            f"Error message:\n{error[1]}"
+        )
+        __exit(1, suggest_help = True)
+
+
+def __argp7(argv: list) -> None:
+    rmdb()
+    print("lanssh: Database cleared successfully.")
+    __exit(0)
+
+
+def __arg_invalid_noargv() -> None:
+    print("lanssh: Invalid arguments or combination of arguments.")
+    __exit(1, suggest_help = True)
+
+
+def __unsupported_platform() -> None:
+    print(
+        "lanssh: Unsupported platform. Currently only the following platforms are\n"
+        "supported:"
+    )
+    for platform in SUPPORTED_PLATFORMS:
+        print (f"  - {platform.capitalize()}")
+    __exit(1, suggest_help = True)
+
+
+def __dependency_missing() -> None:
+    show_missing_dependency()
+    __exit(1, suggest_help = True)
+
+
 def main() -> None:
     argv: list = sys.argv[1:]
-    argc: int = len(argv)
-
     argcode: int = argsck.check_valid_args_pattern()
 
     if (argcode == -1):
-        print("lanssh: Invalid arguments or combination of arguments.")
-        __exit(1, suggest_help = True)
+        return __arg_invalid_noargv()
 
-    if (argcode == NO_ARGS_SPECIFIED or argcode == ARGS_PATTERN_5):
-        if (argcode == NO_ARGS_SPECIFIED):
-            print("lanssh: No options specified. Help is given below.")
-        show_help()
-        __exit(0)
+    if (argcode == NO_ARGS_SPECIFIED):
+        return __argp5_noargv(optional = True)
+
+    if (argcode == ARGS_PATTERN_5):
+        return __argp5_noargv()
 
     if (argcode == ARGS_PATTERN_3):
-        show_version()
-        __exit(0)
+        return __argp3_noargv()
 
     if (not platform_supported()):
-        print(
-            "lanssh: Unsupported platform. Currently only the following platforms are\n"
-            "supported:"
-        )
-        for platform in SUPPORTED_PLATFORMS:
-            print (f"  - {platform.capitalize()}")
-        __exit(1, suggest_help = True)
+        return __unsupported_platform()
 
     if (not prereq_installed()):
-        show_missing_dependency()
-        __exit(1, suggest_help = True)
+        return __dependency_missing()
 
     # Create the database file if it does not exist by calling mkdb()
     mkdb()
 
-    reachable_hosts: dict = get_all_reachable_lan_devs()
+    if (argcode == ARGS_PATTERN_1):
+        return __argp1(argv)
 
-    if (argcode == ARGS_PATTERN_1 or argcode == ARGS_PATTERN_1_OPTIONAL):
-        aliasname: str = argv[0]
-        user: str = ""
-
-        if (argcode == ARGS_PATTERN_1):
-            user = alias.get_default_user(aliasname)
-        else:
-            user = argv[2]
-
-        if (user == "" and argcode == ARGS_PATTERN_1):
-            error: tuple = get_last_error()
-            print(
-                f"lanssh: Error logging in (errorcode: {error[0]}).\n"
-                f"Error message:\n{error[1]}"
-            )
-            __exit(1, suggest_help = True)
-
-        elif (user == "" and argcode == ARGS_PATTERN_1_OPTIONAL):
-            print(
-                f"lanssh: Error logging in (errorcode: {ERR_USERNAME_EMPTY}).\n"
-                "Error message:\nEmpty username received."
-            )
-            __exit(1, suggest_help = True)
-
-        else:
-            mac: str = alias.get_mac(aliasname)
-            if (mac == ""):
-                error = get_last_error()
-                print(
-                    f"lanssh: Error logging in (errorcode: {error[0]}).\n"
-                    f"Error message:\n{error[1]}"
-                )
-                __exit(1, suggest_help = True)
-
-            if (mac in reachable_hosts.keys()):
-                ip: str = reachable_hosts[mac]
-                print (
-                    f"lanssh: Connecting to host {mac.upper()} a.k.a \"{aliasname}\" at\n"
-                    f"{ip} as user \"{user}\"..."
-                )
-
-                ssh_retcode: int = 0
-                try:
-                    ssh_proc = subprocess.run(["ssh", f"{user}@{ip}"])
-                    ssh_retcode = ssh_proc.returncode
-                except KeyboardInterrupt:
-                    print ("lanssh: Login interrupted by user.")
-                    __exit(1)
-
-                print (f"lanssh: Logged out user \"{user}\" from host \"{aliasname}\".")
-                __exit(int(ssh_retcode != 0))
-
-            else:
-                print (f"lanssh: Host {mac.upper()} a.k.a \"{aliasname}\" is currently unreachable.")
-                __exit(1)
-
+    if (argcode == ARGS_PATTERN_1_OPTIONAL):
+        return __argp1(argv, optional = True)
 
     if (argcode == ARGS_PATTERN_2):
-        aliasname: str = argv[1]
-        mac: str = argv[2]
-        default_user: str = argv[3]
+        return __argp2(argv)
 
-        if (alias.add_alias(aliasname, mac, default_user) != 0):
-            error: tuple = get_last_error()
-            print(
-                f"lanssh: Error adding alias (errorcode: {error[0]}).\n"
-                f"Error message:\n{error[1]}"
-            )
-            __exit(1, suggest_help = True)
-        else:
-            print(f"lanssh: Alias \"{aliasname}\" added successfully.")
-            __exit(0)
+    if (argcode == ARGS_PATTERN_4):
+        return __argp4(argv)
 
-    if (argcode == ARGS_PATTERN_4 or argcode == ARGS_PATTERN_4_OPTIONAL):
-        formatted_data: str = ""
-        if (argcode == ARGS_PATTERN_4):
-            formatted_data = dbops.get_formatted_data("table")
-        else:
-            data_format: str = argv[2]
-            formatted_data = dbops.get_formatted_data(data_format)
-
-        if (formatted_data == ""):
-            error: tuple = get_last_error()
-            print(
-                f"lanssh: Error while displaying data (errorcode: {error[0]}).\n"
-                f"Error message:\n{error[1]}"
-            )
-            __exit(1, suggest_help = True)
-        else:
-            print(formatted_data)
-            __exit(0)
+    if (argcode == ARGS_PATTERN_4_OPTIONAL):
+        return __argp4(argv, optional = True)
 
     if (argcode == ARGS_PATTERN_6):
-        aliasname: str = argv[1]
-        if (alias.rm_alias(aliasname) == 0):
-            print(f"lanssh: Alias \"{aliasname}\" removed successfully.")
-            __exit(0)
-        else:
-            error: tuple = get_last_error()
-            print(
-                f"lanssh: Error removing alias (errorcode: {error[0]}).\n"
-                f"Error message:\n{error[1]}"
-            )
-            __exit(1, suggest_help = True)
+        return __argp6(argv)
 
     if (argcode == ARGS_PATTERN_7):
-        rmdb()
-        print("lanssh: Database cleared successfully.")
-        __exit(0)
-'''
-    if (reachable_devs == {}):
-        print("No active devices on local network.")
-        sys.exit(0)
-
-    print("+" * NPLUS)
-    print("|      Device MAC     |    IPv4 Address   |")
-    print("+" * NPLUS)
-    for dev in reachable_devs:
-        print(f"|  {dev}  |  {reachable_devs[dev]}{' '*(17-len(reachable_devs[dev]))}|")
-        print("+" * NPLUS)
-'''
+        return __argp7(argv)
 
 if (__name__ == "__main__"):
     main()

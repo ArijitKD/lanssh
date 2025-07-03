@@ -44,3 +44,4 @@ def get_last_error() -> tuple:
     their present values as a tuple (errno, errdesc).
     '''
     return (errno, errdesc)
+

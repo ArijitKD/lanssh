@@ -27,7 +27,8 @@ errno: int = 0
 errdesc: str = ""
 
 
-def __validate_data(name: str, mac: str, default_user: str) -> int:
+def __validate_data(db_data: dict, name: str, mac: str, default_user: str) -> int:
+    global errdesc, errno
     if (name == ""):
         errdesc = f"Alias cannot be an empty string (\"\")."
         errno = ERR_ALIASNAME_EMPTY
@@ -48,7 +49,7 @@ def __validate_data(name: str, mac: str, default_user: str) -> int:
         errno = ERR_USERNAME_EMPTY
         return -1
 
-    for alias in data["aliases"]:
+    for alias in db_data["aliases"]:
         if (alias["name"].lower() == name.lower()):
             errdesc = f"Alias \"{name}\" already exists in database."
             errno = ERR_ALIAS_EXISTS
@@ -69,7 +70,7 @@ def add_alias(name: str, mac: str, default_user: str) -> int:
         errno, errdesc = dbops.get_last_error()
         return -1
 
-    if (__validate_data(name, mac, default_user) != 0):
+    if (__validate_data(data, name, mac, default_user) != 0):
         return -1
 
     data["aliases"].append(

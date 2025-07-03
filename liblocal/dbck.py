@@ -50,10 +50,24 @@ def check_db_format(json_data: dict) -> int:
         checks.append(alias != {})
         checks.append(checks[0] and set(alias.keys()) == {"name", "mac", "default_user"})
         if (False in checks):
-            errdesc = f"Alias entry at index {[i]} has missing "\
-            f"or invalid primary keys in \n{DATABASE}. Verify if \"name\", "\
-            "\"mac\" and \"default_user\" are the only\nprimary keys "\
-            "present for the given entry. Indexing starts from 0."
+            invalid_keys: list = list(set(alias.keys()) - {"name", "mac", "default_user"})
+
+            if (invalid_keys == []):
+                errdesc = f"Alias entry at index {[i]} has missing "\
+                f"primary keys in {DATABASE}.\nVerify if \"name\", "\
+                "\"mac\" and \"default_user\" are the only primary keys\n"\
+                "present for the given entry. Indexing starts from 0."
+
+            else:
+                errdesc = f"Alias entry at index {[i]} has invalid "\
+                f"primary keys in \n{DATABASE}. Verify if \"name\", "\
+                "\"mac\" and \"default_user\" are the only\nprimary keys "\
+                "present for the given entry. Indexing starts from 0. "\
+                "Invalid\nkeys found are "
+                for key in invalid_keys[0:-1]:
+                    errdesc += f"\"{key}\", "
+                errdesc += f"\"{invalid_keys[-1]}\"."
+
             errno = ERR_DB_FORMAT_INVALID
             return -1
 
@@ -68,7 +82,7 @@ def check_db_values(json_data: dict) -> int:
     '''
     global errdesc, errno
     checks: List[bool] = []
-    
+
     for i in range(len(json_data["aliases"])):
         checks.clear()
         alias: dict = json_data["aliases"][i]
