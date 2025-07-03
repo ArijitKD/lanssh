@@ -96,7 +96,7 @@ def rm_alias(aliasname: str) -> int:
     pop_index: int = -1
 
     for i in range(len(aliases)):
-        if (aliases[i]["name"] == aliasname):
+        if (aliases[i]["name"].lower() == aliasname.lower()):
             pop_index = i
             break
 
