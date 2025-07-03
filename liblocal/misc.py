@@ -40,8 +40,7 @@ def prereq_installed() -> bool:
 def mkdb() -> None:
     dbdir: str = os.path.dirname(DB_EXPAND)
     if (not os.path.isfile(DB_EXPAND)):
-        if (not os.path.isdir(dbdir)):
-            os.mkdir(dbdir)
+        os.makedirs(dbdir, exist_ok=True)
         db = open(DB_EXPAND, "w")
         db.write(
             "{\n"\
@@ -53,6 +52,18 @@ def mkdb() -> None:
 
     elif (os.path.isfile(DB_EXPAND) and
         os.path.getsize(DB_EXPAND) == 0):
+        db = open(DB_EXPAND, "w")
+        db.write(
+            "{\n"\
+            "    \"aliases\": [\n"\
+            "    ]\n"\
+            "}\n"\
+        )
+        db.close()
+
+
+def rmdb() -> None:
+    if (os.path.isfile(DB_EXPAND)):
         db = open(DB_EXPAND, "w")
         db.write(
             "{\n"\

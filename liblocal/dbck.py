@@ -113,7 +113,8 @@ def check_db_values(json_data: dict) -> int:
 
         if (alias["default_user"] == ""):
             errdesc = f"Alias entry at index {[i]} has an empty value for the "\
-            f"\"default_user\"\nprimary key in {DATABASE}. Indexing starts from 0."
+            f"\"default_user\"\nprimary key in {DATABASE}. Indexing starts from 0.\n"\
+            f"Alias name is \"{alias['name']}\"."
             errno = ERR_USERNAME_EMPTY
             return -1
 

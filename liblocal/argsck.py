@@ -64,7 +64,7 @@ def check_valid_args_pattern() -> int:
     if (argc == 1 and argv[0] in VALID_OPTIONS["H"]):
         return ARGS_PATTERN_5
 
-    if (argc == 3 and argv[0] in VALID_OPTIONS["RA"]):
+    if (argc == 2 and argv[0] in VALID_OPTIONS["RA"]):
         return ARGS_PATTERN_6
 
     if (argc == 1 and argv[0] in VALID_OPTIONS["RD"]):

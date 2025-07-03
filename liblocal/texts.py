@@ -21,11 +21,20 @@
 
 from .const import *
 
+
+def __supported_platforms_section_for_HELP_TEXT() -> str:
+    section_0: str = "\n#0 Supported platforms:\n"
+    for _platform in SUPPORTED_PLATFORMS:
+        section_0 += f"  - {_platform.capitalize()}\n"
+    return section_0
+
+
 HELP_TEXT = \
 f'''Help for lanssh (version {VERSION})
 
 lanssh: SSH into LAN devices simply using just an alias for the remote host.
-'''\
+''' + \
+__supported_platforms_section_for_HELP_TEXT() + \
 '''
 #1 Possible usage patterns:
   1. lanssh <alias> [{-u | --user} <host-username>]
@@ -78,17 +87,18 @@ f'''
                           If the database is corrupted, will raise an error.
                           See pattern (2) from section #1 for usage.
 
-  2. -h, --help        :  Show this help section and exit. It is a non-mandatory
-                          option, since help section is always displayed when no
-                          options are specified.
+  2. -h, --help        :  Show this help section and exit. It is a non-
+                          mandatory option, since help section is always
+                          displayed when no options are specified.
 
   3. -l, --list        :  Show the list of added host aliases along with the
-                          associated MAC address and default username. If either
-                          -f or --format is specified, use the specified format
-                          (more in point 5). If not, display the data in tabular
-                          form. If the database is missing, an appropriate message
-                          is displayed. If the database is corrupted, will raise
-                          an error. See pattern (5) from section #1 for usage.
+                          associated MAC address and default username. If
+                          either -f or --format is specified, use the specified
+                          format (more in point 5). If not, display the data in
+                          tabular form. If the database is missing, an
+                          appropriate message is displayed. If the database is
+                          corrupted, will raise an error. See pattern (5) from
+                          section #1 for usage.
 
   5. -f, --format      :  A non-mandatory option specifying the format of
                           displaying the data. Currently supported values are:
@@ -104,12 +114,12 @@ f'''
   7. -v, --version     :  Show version and copyright info, then exit.
 
   8. -ra, --rm-alias   :  Remove an alias for the given MAC address. Trying
-                          to remove a non-existent alias will result in an error.
+                          to remove a non-existent alias will cause an error.
                           If the database is corrupted, will raise an error.
                           See pattern (7) from section #1 for usage.
 
   9. -rd, --rmdb      :  Clear the database file {DATABASE}. Useful if
-                          manual correction of the file becomes impossible.
+                         manual correction of the file becomes impossible.
 
 ## NOTE:
   - If the database file gets corrupted, and some options will raise an error.

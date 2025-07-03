@@ -28,7 +28,7 @@ SUPPORTED_PLATFORMS = {
 
 MULTIPROC_PCOUNT = 5
 NPLUS = 43
-VERSION = "1.0_alpha"
+VERSION = "1.0_beta"
 DATABASE = "~/.lanssh/db.json"
 DB_EXPAND = os.path.expanduser(DATABASE)
 MAC_PATTERN = re.compile(r"([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})")

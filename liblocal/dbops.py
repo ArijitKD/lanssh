@@ -56,7 +56,7 @@ def read_data() -> dict:
 
 
 def write_data(jsondata: dict) -> None:
-    '''
+    f'''
     Writes the JSON data to {DATABASE} as a string. Not implemented with
     errno and errdesc to get the stack trace in case json.dumps() crashes.
     '''
@@ -64,6 +64,44 @@ def write_data(jsondata: dict) -> None:
     db = open(DB_EXPAND, "w")
     db.write(stringdata + "\n")
     db.close()
+
+
+def get_formatted_data(data_format: str) -> str:
+    f'''
+    Returns the data from {DATABASE} as a string formatted with
+    the given format Currently supported formats are: table, json.
+    '''
+    global errno, errdesc
+    data: dict = read_data()
+    if (data == {}):
+        return ""
+
+    formatted_data: str = ""
+
+    if (data_format == "table"):
+        names: list = []
+        macs: list = []
+        default_users: list = []
+        spacing: str = "    "
+        for alias in data["aliases"]:
+            names.append(alias["name"].capitalize())
+            macs.append(alias["mac"].upper())
+            default_users.append(alias["default_user"])
+        formatted_data = "ALIAS           " + spacing + "MAC ADDRESS      " +\
+            spacing + "DEFAULT USER\n"
+        for i in range(len(data["aliases"])):
+            formatted_data += (names[i] + " " * (MAX_ALIASNAME_LENGTH - len(names[i])))
+            formatted_data += (spacing + macs[i] + spacing + default_users[i] + "\n")
+        formatted_data = formatted_data.strip()
+
+    elif (data_format == "json"):
+        formatted_data = json.dumps(data, indent=4)
+
+    else:
+        errno = ERR_UNSUPPORTED_FORMAT
+        errdesc = f"Format \"{data_format}\" is currently not supported."
+
+    return formatted_data
 
 
 def get_last_error() -> tuple:
@@ -79,3 +117,4 @@ def get_last_error() -> tuple:
     if (errno != 0):
         errno = 0
     return (last_errno, last_errdesc)
+

@@ -29,6 +29,7 @@ import os
 import liblocal.argsck as argsck
 import liblocal.dbck as dbck
 import liblocal.alias as alias
+import liblocal.dbops as dbops
 
 from liblocal.misc import *
 from liblocal.errno import *
@@ -46,7 +47,8 @@ def get_last_error() -> tuple:
     '''
     all_errors: list = [
         alias.get_last_error(),
-        dbck.get_last_error()
+        dbck.get_last_error(),
+        dbops.get_last_error()
     ]
     for error in all_errors:
         if (error != (0, "")):
@@ -87,6 +89,12 @@ def get_all_reachable_lan_devs() -> dict:
     return lan_dev
 
 
+def __exit(exitcode, suggest_help: bool = False) -> None:
+    if (suggest_help):
+        print("\nUse \"lanssh -h\" to get help.")
+    sys.exit(exitcode)
+
+
 def main() -> None:
     argv: list = sys.argv[1:]
     argc: int = len(argv)
@@ -94,31 +102,31 @@ def main() -> None:
     argcode: int = argsck.check_valid_args_pattern()
 
     if (argcode == -1):
-        print(
-            "lanssh: Invalid arguments or combination of arguments.\n"
-            "Use \"lanssh -h\" to get help."
-        )
-        sys.exit(1)
+        print("lanssh: Invalid arguments or combination of arguments.")
+        __exit(1, suggest_help = True)
 
     if (argcode == NO_ARGS_SPECIFIED or argcode == ARGS_PATTERN_5):
         if (argcode == NO_ARGS_SPECIFIED):
             print("lanssh: No options specified. Help is given below.")
         show_help()
-        sys.exit(0)
+        __exit(0)
 
     if (argcode == ARGS_PATTERN_3):
         show_version()
-        sys.exit(0)
+        __exit(0)
 
     if (not platform_supported()):
-        print("lanssh: Unsupported platform. Currently only the following platforms are supported:")
+        print(
+            "lanssh: Unsupported platform. Currently only the following platforms are\n"
+            "supported:"
+        )
         for platform in SUPPORTED_PLATFORMS:
-            print (f"- {platform}")
-        sys.exit(1)
+            print (f"  - {platform.capitalize()}")
+        __exit(1, suggest_help = True)
 
     if (not prereq_installed()):
         show_missing_dependency()
-        sys.exit(1)
+        __exit(1, suggest_help = True)
 
     # Create the database file if it does not exist by calling mkdb()
     mkdb()
@@ -140,14 +148,14 @@ def main() -> None:
                 f"lanssh: Error logging in (errorcode: {error[0]}).\n"
                 f"Error message:\n{error[1]}"
             )
-            sys.exit(1)
+            __exit(1, suggest_help = True)
 
         elif (user == "" and argcode == ARGS_PATTERN_1_OPTIONAL):
             print(
                 f"lanssh: Error logging in (errorcode: {ERR_USERNAME_EMPTY}).\n"
                 "Error message:\nEmpty username received."
             )
-            sys.exit(1)
+            __exit(1, suggest_help = True)
 
         else:
             mac: str = alias.get_mac(aliasname)
@@ -157,7 +165,8 @@ def main() -> None:
                     f"lanssh: Error logging in (errorcode: {error[0]}).\n"
                     f"Error message:\n{error[1]}"
                 )
-                sys.exit(1)
+                __exit(1, suggest_help = True)
+
             if (mac in reachable_hosts.keys()):
                 ip: str = reachable_hosts[mac]
                 print (
@@ -171,13 +180,14 @@ def main() -> None:
                     ssh_retcode = ssh_proc.returncode
                 except KeyboardInterrupt:
                     print ("lanssh: Login interrupted by user.")
-                    sys.exit(1)
+                    __exit(1)
 
                 print (f"lanssh: Logged out user \"{user}\" from host \"{aliasname}\".")
-                sys.exit(int(ssh_retcode != 0))
+                __exit(int(ssh_retcode != 0))
+
             else:
-                print (f"lanssh: Host {mac} a.k.a \"{aliasname}\" is currently unreachable.")
-                sys.exit(1)
+                print (f"lanssh: Host {mac.upper()} a.k.a \"{aliasname}\" is currently unreachable.")
+                __exit(1)
 
 
     if (argcode == ARGS_PATTERN_2):
@@ -191,11 +201,47 @@ def main() -> None:
                 f"lanssh: Error adding alias (errorcode: {error[0]}).\n"
                 f"Error message:\n{error[1]}"
             )
-            sys.exit(1)
+            __exit(1, suggest_help = True)
         else:
-            print("lanssh: Alias added successfully.")
-            sys.exit(0)
+            print(f"lanssh: Alias \"{aliasname}\" added successfully.")
+            __exit(0)
 
+    if (argcode == ARGS_PATTERN_4 or argcode == ARGS_PATTERN_4_OPTIONAL):
+        formatted_data: str = ""
+        if (argcode == ARGS_PATTERN_4):
+            formatted_data = dbops.get_formatted_data("table")
+        else:
+            data_format: str = argv[2]
+            formatted_data = dbops.get_formatted_data(data_format)
+
+        if (formatted_data == ""):
+            error: tuple = get_last_error()
+            print(
+                f"lanssh: Error while displaying data (errorcode: {error[0]}).\n"
+                f"Error message:\n{error[1]}"
+            )
+            __exit(1, suggest_help = True)
+        else:
+            print(formatted_data)
+            __exit(0)
+
+    if (argcode == ARGS_PATTERN_6):
+        aliasname: str = argv[1]
+        if (alias.rm_alias(aliasname) == 0):
+            print(f"lanssh: Alias \"{aliasname}\" removed successfully.")
+            __exit(0)
+        else:
+            error: tuple = get_last_error()
+            print(
+                f"lanssh: Error removing alias (errorcode: {error[0]}).\n"
+                f"Error message:\n{error[1]}"
+            )
+            __exit(1, suggest_help = True)
+
+    if (argcode == ARGS_PATTERN_7):
+        rmdb()
+        print("lanssh: Database cleared successfully.")
+        __exit(0)
 '''
     if (reachable_devs == {}):
         print("No active devices on local network.")

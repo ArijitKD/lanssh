@@ -27,14 +27,7 @@ errno: int = 0
 errdesc: str = ""
 
 
-def add_alias(name: str, mac: str, default_user: str) -> int:
-    global errdesc, errno
-    data: dict = dbops.read_data()
-
-    if (data == {}):
-        errno, errdesc = dbops.get_last_error()
-        return -1
-
+def __validate_data(name: str, mac: str, default_user: str) -> int:
     if (name == ""):
         errdesc = f"Alias cannot be an empty string (\"\")."
         errno = ERR_ALIASNAME_EMPTY
@@ -65,6 +58,20 @@ def add_alias(name: str, mac: str, default_user: str) -> int:
             errno = ERR_ALIASNAME_HAS_SPACE
             return -1
 
+    return 0
+
+
+def add_alias(name: str, mac: str, default_user: str) -> int:
+    global errdesc, errno
+    data: dict = dbops.read_data()
+
+    if (data == {}):
+        errno, errdesc = dbops.get_last_error()
+        return -1
+
+    if (__validate_data(name, mac, default_user) != 0):
+        return -1
+
     data["aliases"].append(
         {
             "name" : name.lower(),
@@ -72,6 +79,33 @@ def add_alias(name: str, mac: str, default_user: str) -> int:
             "default_user": default_user
         }
     )
+    dbops.write_data(data)
+    return 0
+
+
+def rm_alias(aliasname: str) -> int:
+    global errdesc, errno
+    data: dict = dbops.read_data()
+
+    if (data == {}):
+        errno, errdesc = dbops.get_last_error()
+        return -1
+
+    aliases: list = data["aliases"]
+    pop_index: int = -1
+
+    for i in range(len(aliases)):
+        if (aliases[i]["name"] == aliasname):
+            pop_index = i
+            break
+
+    if (pop_index == -1):
+        errdesc = f"Alias \"{aliasname}\" does not exist in database."
+        errno = ERR_ALIAS_NOT_FOUND
+        return -1
+    else:
+        aliases.pop(pop_index)
+
     dbops.write_data(data)
     return 0
 
