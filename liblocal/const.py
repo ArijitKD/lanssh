@@ -22,13 +22,14 @@
 import re
 import os
 
+__cpu_count = os.cpu_count()
+
 SUPPORTED_PLATFORMS = {
     "linux"
 }
 
-MULTIPROC_PCOUNT = 5
-NPLUS = 43
-VERSION = "1.0_beta"
+MULTIPROC_PCOUNT = __cpu_count if __cpu_count is not None else 5
+VERSION = "1.3_beta"
 DATABASE = "~/.lanssh/db.json"
 DB_EXPAND = os.path.expanduser(DATABASE)
 MAC_PATTERN = re.compile(r"([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})")
