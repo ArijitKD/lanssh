@@ -19,19 +19,128 @@ This tool is ideal for network setups involving devices such as Raspberry Pi boa
 
 ## Platform Support
 
-- Linux only. Tested on Debian-based distributions such as Ubuntu and Linux Mint.
+- Currently supports **Linux-based systems only**.
+
+---
+
+## Tested Systems
+
+- Debian "Bookworm"
+- Android 12 (Termux)
 
 ---
 
 ## Installation
 
-To install `lanssh` from a `.deb` package:
+Currently, installable packages are available for Debian-based disributions only. Manual installation is possible via `make` for others.
+
+### Install via APT (Recommended)
+
+You can install `lanssh` using the APT package manager from the official GitHub-hosted `stable` repository.
+
+#### Step 1: Add the APT repository
+
+- For **Termux**, run:
 
 ```bash
-sudo dpkg -i lanssh_<version>.deb
+export TERMUX_ROOT="$HOME/../usr"
+mkdir -p $TERMUX_ROOT/etc/apt/sources.list.d
+echo "deb [trusted=yes arch=all] https://arijitkd.github.io/lanssh/packages/apt stable termux" | tee $TERMUX_ROOT/etc/apt/sources.list.d/lanssh.list
 ```
 
-This installs the core logic to `/usr/lib/lanssh/`, adds a symlink in `/usr/bin/`, and installs documentation to `/usr/share/doc/lanssh/`.
+- For other **Debian-based distributions**, run:
+
+```bash
+echo "deb [trusted=yes arch=all] https://arijitkd.github.io/lanssh/packages/apt stable main" | sudo tee /etc/apt/sources.list.d/lanssh.list
+```
+
+> `trusted=yes` is used here because the repository is not signed with a GPG key.
+
+#### Step 2: Update APT cache
+
+- For **Termux**, run:
+
+```bash
+pkg update
+```
+
+- For other **Debian-based distributions**, run:
+
+```bash
+sudo apt update
+```
+
+#### Step 3: Install `lanssh`
+
+- For **Termux**, run:
+
+```bash
+pkg install lanssh
+```
+
+- For other **Debian-based distributions**, run:
+
+```bash
+sudo apt install lanssh
+```
+
+---
+
+### Installation from Releases
+
+If you prefer, you can manually download and install the `.deb` package from the [Releases](https://github.com/ArijitKD/lanssh/releases) section of the GitHub repository.
+
+#### Step 1: Download the `.deb` package
+
+Visit: [https://github.com/ArijitKD/lanssh/releases](https://github.com/ArijitKD/lanssh/releases)  
+Download the latest `.deb` file corresponding to your architecture (usually `amd64` for most systems).
+
+#### Step 2: Install using `dpkg`
+
+```bash
+sudo dpkg -i lanssh_<version>_all.deb
+```
+
+> Replace `<version>` with the actual version number of the downloaded package.
+
+#### Step 3: Fix dependencies (if required)
+
+```bash
+sudo apt install -f
+```
+
+---
+
+### Manaul installation using `make` (for non-Debian-based systems)
+
+#### Step 1: Get `make` and `git`
+
+Install `make` and `git` if you don't have it already. Installation procedure may vary depending on your package manager. Consult your system documentation for guidance.
+
+#### Step 2: Clone the repository
+
+In your preferred workspace directory, run:
+
+```bash
+git clone https://github.com/ArijitKD/lanssh.git lanssh-main
+```
+
+#### Step 3: Install using `make`
+
+Run as `root`:
+
+```bash
+cd lanssh-main
+make install
+```
+
+#### Step 4 (optional): Uninstallation
+
+To uninstall, assuming you are in the toplevel directory of the repository (`lanssh-main` as per above), run as `root`:
+
+```bash
+make uninstall
+```
 
 ---
 
@@ -98,15 +207,17 @@ Manual editing is discouraged unless recovery is necessary.
 
 ## Dependencies
 
-- Python 3.x
-- `arp-scan` (used for MAC-to-IP mapping)
-- OpenSSH client (`ssh`)
+- python3
+- iproute2
+- iputils-ping
+- openssh-client
 
-You can install the dependency using:
+For manual installation using `make`, ensure these packages are installed. Note that package name may differ by distro, and the actual programs required are:
 
-```bash
-sudo apt install arp-scan
-```
+- python3
+- ip
+- ping
+- ssh
 
 ---
 

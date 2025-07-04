@@ -1,0 +1,18 @@
+Package: lanssh
+Version: 1.0
+Architecture: all
+Maintainer: Arijit Kumar Das <arijitkdgit.official@gmail.com>
+Depends: python3, iproute2, termux-tools, openssh
+Filename: pool/termux/lanssh_1.0-1_all.termux.deb
+Size: 10864
+MD5sum: e42baa94b77641a38f09629d2787862e
+SHA1: bd6202c3ac9e78ce1dc59476702ff83a10e3ad3f
+SHA256: 1b6b64bc2541d100666367b43c7a285cd7dbb132e8c85d6a1a04b4ab25d6f64e
+Section: utils
+Priority: optional
+Homepage: https://github.com/ArijitKD/lanssh
+Description: SSH into LAN devices using an alias instead of an IP
+ lanssh allows quick SSH login to LAN devices by mapping aliases to
+ MAC addresses and dynamically resolving the host’s current IP.
+ It simplifies local SSH access for headless systems.
+

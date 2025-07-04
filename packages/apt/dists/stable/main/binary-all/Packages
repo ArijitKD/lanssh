@@ -1,0 +1,18 @@
+Package: lanssh
+Version: 1.0
+Architecture: all
+Maintainer: Arijit Kumar Das <arijitkdgit.official@gmail.com>
+Depends: python3, iproute2, iputils-ping, openssh-client
+Filename: pool/main/lanssh_1.0-1_all.main.deb
+Size: 10864
+MD5sum: f79668ce9bc7a81c25fc4becb90d83c4
+SHA1: a5e94931bb09998961eb0cce97e305c25d3153fa
+SHA256: 367656c2a76bec873e40de377556ecda7d252b429c23c0369f4bcc18b1ba4674
+Section: utils
+Priority: optional
+Homepage: https://github.com/ArijitKD/lanssh
+Description: SSH into LAN devices using an alias instead of an IP
+ lanssh allows quick SSH login to LAN devices by mapping aliases to
+ MAC addresses and dynamically resolving the host’s current IP.
+ It simplifies local SSH access for headless systems.
+
