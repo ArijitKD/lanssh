@@ -1,0 +1,14 @@
+data/data/com.termux/files/usr/bin/lanssh                                        lanssh
+data/data/com.termux/files/usr/lib/lanssh/lanssh.py                              lanssh
+data/data/com.termux/files/usr/lib/lanssh/liblocal/alias.py                      lanssh
+data/data/com.termux/files/usr/lib/lanssh/liblocal/argsck.py                     lanssh
+data/data/com.termux/files/usr/lib/lanssh/liblocal/const.py                      lanssh
+data/data/com.termux/files/usr/lib/lanssh/liblocal/dbck.py                       lanssh
+data/data/com.termux/files/usr/lib/lanssh/liblocal/dbops.py                      lanssh
+data/data/com.termux/files/usr/lib/lanssh/liblocal/errno.py                      lanssh
+data/data/com.termux/files/usr/lib/lanssh/liblocal/lan.py                        lanssh
+data/data/com.termux/files/usr/lib/lanssh/liblocal/misc.py                       lanssh
+data/data/com.termux/files/usr/lib/lanssh/liblocal/texts.py                      lanssh
+data/data/com.termux/files/usr/share/doc/lanssh/changelog.gz                     lanssh
+data/data/com.termux/files/usr/share/doc/lanssh/copyright                        lanssh
+data/data/com.termux/files/usr/share/man/man1/lanssh.1.gz                        lanssh
