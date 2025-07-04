@@ -9,22 +9,22 @@ Description: SSH into LAN devices using an alias instead of an IP
  lanssh allows quick SSH login to LAN devices by mapping aliases to
  MAC addresses and dynamically resolving the host’s current IP.
  It simplifies local SSH access for headless systems.
-Date: Fri, 04 Jul 2025 10:56:47 +0000
+Date: Fri, 04 Jul 2025 11:58:10 +0000
 MD5Sum:
- c7387197e9af0b39c0216ab1ea8ba71d 458 builds/lanssh_1.0-1_all.termux/usr/share/doc/lanssh/changelog.gz
- ba76a8edfac3b4324d84cfd4c85d69b4 640 builds/lanssh_1.0-1_all.termux/usr/share/doc/lanssh/copyright
- 370c6679a4321b1ae31211a1efe00b13 1334 builds/lanssh_1.0-1_all.termux/usr/share/man/man1/lanssh.1.gz
- 58c60f842257873c20427678ed69045f 903 builds/lanssh_1.0-1_all.termux/usr/bin/lanssh
- 5f345bfd73978894a1dcc25ae145e11b 3597 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/dbops.py
- f94320367c0fd0a4edacaa02a1ff88aa 1527 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/errno.py
- a576f20c10f7e42893ea426fac48fe7b 1992 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/lan.py
- 4d9de7b64dec93196c284fec3eb0dc3f 6980 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/texts.py
- 89135eb33a4e09a30349c72a6e1377fb 5742 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/dbck.py
- 296e806947fc0652f4e1255512425f22 2179 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/misc.py
- 4c04ee5335b9416b143a70737ee0c581 1782 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/const.py
- cc940e617f582c9189c2d410b1670500 4834 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/alias.py
- 10ae70227abeb9207b0e8220c1fb2533 2201 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/argsck.py
- 1c1cbea9129bd57578a86dd316c27303 7273 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/lanssh.py
+ c7387197e9af0b39c0216ab1ea8ba71d 458 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/share/doc/lanssh/changelog.gz
+ ba76a8edfac3b4324d84cfd4c85d69b4 640 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/share/doc/lanssh/copyright
+ 370c6679a4321b1ae31211a1efe00b13 1334 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/share/man/man1/lanssh.1.gz
+ 58c60f842257873c20427678ed69045f 903 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/bin/lanssh
+ 5f345bfd73978894a1dcc25ae145e11b 3597 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/dbops.py
+ f94320367c0fd0a4edacaa02a1ff88aa 1527 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/errno.py
+ a576f20c10f7e42893ea426fac48fe7b 1992 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/lan.py
+ 4d9de7b64dec93196c284fec3eb0dc3f 6980 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/texts.py
+ 89135eb33a4e09a30349c72a6e1377fb 5742 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/dbck.py
+ 296e806947fc0652f4e1255512425f22 2179 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/misc.py
+ 4c04ee5335b9416b143a70737ee0c581 1782 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/const.py
+ cc940e617f582c9189c2d410b1670500 4834 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/alias.py
+ 10ae70227abeb9207b0e8220c1fb2533 2201 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/argsck.py
+ 1c1cbea9129bd57578a86dd316c27303 7273 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/lanssh.py
  b73752a746f60e5cbb4307d466783db3 492 builds/lanssh_1.0-1_all.termux/DEBIAN/control
  c7387197e9af0b39c0216ab1ea8ba71d 458 builds/lanssh_1.0-1_all.main/usr/share/doc/lanssh/changelog.gz
  ba76a8edfac3b4324d84cfd4c85d69b4 640 builds/lanssh_1.0-1_all.main/usr/share/doc/lanssh/copyright
@@ -41,30 +41,30 @@ MD5Sum:
  10ae70227abeb9207b0e8220c1fb2533 2201 builds/lanssh_1.0-1_all.main/usr/lib/lanssh/liblocal/argsck.py
  1c1cbea9129bd57578a86dd316c27303 7273 builds/lanssh_1.0-1_all.main/usr/lib/lanssh/lanssh.py
  e28b2fb1f93ec466f5d93ff4003de2b1 499 builds/lanssh_1.0-1_all.main/DEBIAN/control
- f8246fa56e9d6cd66354c8c42dc51c8d 2006 dists/stable/main/binary-all/Release
+ 84018d14d33e7395324b1c82fd3bc0be 12896 dists/stable/main/binary-all/Release
  e163e3ee4820089ce8c927e70eee4b6b 516 dists/stable/main/binary-all/Packages.gz
  f95fb4ff334e6d987e620a73f47b75e7 719 dists/stable/main/binary-all/Packages
- 428c2082fd809e06570fb923cb23be99 2008 dists/stable/termux/binary-all/Release
+ 84018d14d33e7395324b1c82fd3bc0be 12896 dists/stable/termux/binary-all/Release
  cebd0a34ac4a22910d1ec50de1fdae3c 515 dists/stable/termux/binary-all/Packages.gz
  9941ed50670622e54970032cb1ff3f50 716 dists/stable/termux/binary-all/Packages
  f79668ce9bc7a81c25fc4becb90d83c4 10864 pool/main/lanssh_1.0-1_all.main.deb
- e42baa94b77641a38f09629d2787862e 10864 pool/termux/lanssh_1.0-1_all.termux.deb
+ 57aef3aab3f83f9f26a96ffdb23a750a 10920 pool/termux/lanssh_1.0-1_all.termux.deb
  134cec4226198f5a3617ffaef28ae411 809 generate-release.sh
 SHA1:
- 06e19b6e902434afc050b47213d2d194f8fac2c6 458 builds/lanssh_1.0-1_all.termux/usr/share/doc/lanssh/changelog.gz
- ebc919a3c707c0b44abcb9d07041285bb8872393 640 builds/lanssh_1.0-1_all.termux/usr/share/doc/lanssh/copyright
- 3701797b48df5f8dba10071a0bc41be62f2fe41f 1334 builds/lanssh_1.0-1_all.termux/usr/share/man/man1/lanssh.1.gz
- 2b95025af4daab2814cab3aeffc5af10eea76d1d 903 builds/lanssh_1.0-1_all.termux/usr/bin/lanssh
- 30bdb0e73f01e74bbae4d3e5c34a2db68732de4c 3597 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/dbops.py
- b731f75d56cbfcc0caab8b15d9bc54ec63725e9b 1527 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/errno.py
- b2b67bdd96625992b3d29be07510b0f3f163691b 1992 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/lan.py
- b544ba656ff594c5d83a3aa2734563d849c6f740 6980 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/texts.py
- 50dc3ebd8b19c82c7da858e332a564e680a92870 5742 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/dbck.py
- d07652d7c479a755a41aeb3c643a15e3a8fdb38f 2179 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/misc.py
- b4f9947f94f34ef5d73adfac5e46f17e0aba7672 1782 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/const.py
- 00c3676b8baca3d9264be71e0fe489532b57a5ce 4834 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/alias.py
- c31c3287c304a1c8ec12c731908618e43aa6c8b9 2201 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/argsck.py
- 360c7736212c91b95530aa57c68928f77d78b4d9 7273 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/lanssh.py
+ 06e19b6e902434afc050b47213d2d194f8fac2c6 458 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/share/doc/lanssh/changelog.gz
+ ebc919a3c707c0b44abcb9d07041285bb8872393 640 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/share/doc/lanssh/copyright
+ 3701797b48df5f8dba10071a0bc41be62f2fe41f 1334 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/share/man/man1/lanssh.1.gz
+ 2b95025af4daab2814cab3aeffc5af10eea76d1d 903 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/bin/lanssh
+ 30bdb0e73f01e74bbae4d3e5c34a2db68732de4c 3597 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/dbops.py
+ b731f75d56cbfcc0caab8b15d9bc54ec63725e9b 1527 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/errno.py
+ b2b67bdd96625992b3d29be07510b0f3f163691b 1992 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/lan.py
+ b544ba656ff594c5d83a3aa2734563d849c6f740 6980 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/texts.py
+ 50dc3ebd8b19c82c7da858e332a564e680a92870 5742 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/dbck.py
+ d07652d7c479a755a41aeb3c643a15e3a8fdb38f 2179 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/misc.py
+ b4f9947f94f34ef5d73adfac5e46f17e0aba7672 1782 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/const.py
+ 00c3676b8baca3d9264be71e0fe489532b57a5ce 4834 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/alias.py
+ c31c3287c304a1c8ec12c731908618e43aa6c8b9 2201 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/argsck.py
+ 360c7736212c91b95530aa57c68928f77d78b4d9 7273 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/lanssh.py
  40af75d20aa62a1d7ffed3fed49651b61c552b9d 492 builds/lanssh_1.0-1_all.termux/DEBIAN/control
  06e19b6e902434afc050b47213d2d194f8fac2c6 458 builds/lanssh_1.0-1_all.main/usr/share/doc/lanssh/changelog.gz
  ebc919a3c707c0b44abcb9d07041285bb8872393 640 builds/lanssh_1.0-1_all.main/usr/share/doc/lanssh/copyright
@@ -81,30 +81,30 @@ SHA1:
  c31c3287c304a1c8ec12c731908618e43aa6c8b9 2201 builds/lanssh_1.0-1_all.main/usr/lib/lanssh/liblocal/argsck.py
  360c7736212c91b95530aa57c68928f77d78b4d9 7273 builds/lanssh_1.0-1_all.main/usr/lib/lanssh/lanssh.py
  dedde6951a34455ba00d06b407962351e9315bac 499 builds/lanssh_1.0-1_all.main/DEBIAN/control
- 5536758dca165be14d838b426de6270d1f81ab8f 2006 dists/stable/main/binary-all/Release
+ 701e6935f44788c22851f1ecc34c34f42839d394 12896 dists/stable/main/binary-all/Release
  efebfd8fe77395d52214002fd4242c13864f3410 516 dists/stable/main/binary-all/Packages.gz
  ca005f7fb6312e9af2ce3116d14c62c6f7e46aa8 719 dists/stable/main/binary-all/Packages
- 9810efbe3ec84581c9dc3912d5c940bdb1c54580 2008 dists/stable/termux/binary-all/Release
+ 701e6935f44788c22851f1ecc34c34f42839d394 12896 dists/stable/termux/binary-all/Release
  366a6d6a30bbd476b2ab220f6a9aa7bfe9f47d20 515 dists/stable/termux/binary-all/Packages.gz
  17634ce67968a3612d60618b715efadc4e07032c 716 dists/stable/termux/binary-all/Packages
  a5e94931bb09998961eb0cce97e305c25d3153fa 10864 pool/main/lanssh_1.0-1_all.main.deb
- bd6202c3ac9e78ce1dc59476702ff83a10e3ad3f 10864 pool/termux/lanssh_1.0-1_all.termux.deb
+ 79fe8bddb6090bcf9587b697f006799e24fcdab0 10920 pool/termux/lanssh_1.0-1_all.termux.deb
  fc3cf0b05ee3de4a3c55307961fb4f9c1464874f 809 generate-release.sh
 SHA256:
- b05133d1710914805b1137a2d064ae2fb7da0e23421bb6f448593ecfdd8218eb 458 builds/lanssh_1.0-1_all.termux/usr/share/doc/lanssh/changelog.gz
- d181bdda0c437d4a4a90c6def63a23938a815f5bca2c56d5949eb7c36939bbf1 640 builds/lanssh_1.0-1_all.termux/usr/share/doc/lanssh/copyright
- 063766d6f7b2c39d33bdf791beb3af8eead18874705491a0fc0c3d90c75a729a 1334 builds/lanssh_1.0-1_all.termux/usr/share/man/man1/lanssh.1.gz
- 74dd9284c09b5ad019ed1c77b3a90f1e7f742c9b5da1dbf6566d0b0726b606f6 903 builds/lanssh_1.0-1_all.termux/usr/bin/lanssh
- 58665833089768c5f1f108a49daa2af1c5458ed364cc65212776ae052e00aa7a 3597 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/dbops.py
- bdfbffb960472d4d543c013c5947cd639587b388aff5bfbb30b49b2b34d4017c 1527 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/errno.py
- 667ebb828cdb8de91657e7bab47646136b1626a179cda1c7a986b9462ed50784 1992 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/lan.py
- 51642668fbc64fecc3472482ce1c70750c7e6bb6e76feb17a9b739091bfd4a69 6980 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/texts.py
- a032dcd622358049eb5e29536dd4edc00b40de57bafdc893181ab2ef26ce3c53 5742 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/dbck.py
- bc97fa10e5e88fb54c07383824a7523598e9d0e78b290d2573cd152716aa3bfd 2179 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/misc.py
- 741b22cd7ca006a899fbf36695414316ae61f78b823c76242cd0cfe0c566f937 1782 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/const.py
- 5b6c67d19c5e404f6df40206a3be339d4841b82e57824e73acdcd6d3e921bc9a 4834 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/alias.py
- 3c718efc618fdbdccf26d7994f3eff8424f828b70b3a2e715d8e2bad8f0c526c 2201 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/liblocal/argsck.py
- cb39daa2b0b9cdc69a11dce07a7dc16ca43e2c192afd8508614e990b1ffe8ec3 7273 builds/lanssh_1.0-1_all.termux/usr/lib/lanssh/lanssh.py
+ b05133d1710914805b1137a2d064ae2fb7da0e23421bb6f448593ecfdd8218eb 458 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/share/doc/lanssh/changelog.gz
+ d181bdda0c437d4a4a90c6def63a23938a815f5bca2c56d5949eb7c36939bbf1 640 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/share/doc/lanssh/copyright
+ 063766d6f7b2c39d33bdf791beb3af8eead18874705491a0fc0c3d90c75a729a 1334 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/share/man/man1/lanssh.1.gz
+ 74dd9284c09b5ad019ed1c77b3a90f1e7f742c9b5da1dbf6566d0b0726b606f6 903 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/bin/lanssh
+ 58665833089768c5f1f108a49daa2af1c5458ed364cc65212776ae052e00aa7a 3597 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/dbops.py
+ bdfbffb960472d4d543c013c5947cd639587b388aff5bfbb30b49b2b34d4017c 1527 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/errno.py
+ 667ebb828cdb8de91657e7bab47646136b1626a179cda1c7a986b9462ed50784 1992 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/lan.py
+ 51642668fbc64fecc3472482ce1c70750c7e6bb6e76feb17a9b739091bfd4a69 6980 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/texts.py
+ a032dcd622358049eb5e29536dd4edc00b40de57bafdc893181ab2ef26ce3c53 5742 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/dbck.py
+ bc97fa10e5e88fb54c07383824a7523598e9d0e78b290d2573cd152716aa3bfd 2179 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/misc.py
+ 741b22cd7ca006a899fbf36695414316ae61f78b823c76242cd0cfe0c566f937 1782 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/const.py
+ 5b6c67d19c5e404f6df40206a3be339d4841b82e57824e73acdcd6d3e921bc9a 4834 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/alias.py
+ 3c718efc618fdbdccf26d7994f3eff8424f828b70b3a2e715d8e2bad8f0c526c 2201 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/liblocal/argsck.py
+ cb39daa2b0b9cdc69a11dce07a7dc16ca43e2c192afd8508614e990b1ffe8ec3 7273 builds/lanssh_1.0-1_all.termux/data/data/com.termux/files/usr/lib/lanssh/lanssh.py
  ce053e86a57e565fedea3e301d70f8f9795ab77081fd011204f644f24af9e057 492 builds/lanssh_1.0-1_all.termux/DEBIAN/control
  b05133d1710914805b1137a2d064ae2fb7da0e23421bb6f448593ecfdd8218eb 458 builds/lanssh_1.0-1_all.main/usr/share/doc/lanssh/changelog.gz
  d181bdda0c437d4a4a90c6def63a23938a815f5bca2c56d5949eb7c36939bbf1 640 builds/lanssh_1.0-1_all.main/usr/share/doc/lanssh/copyright
@@ -121,12 +121,12 @@ SHA256:
  3c718efc618fdbdccf26d7994f3eff8424f828b70b3a2e715d8e2bad8f0c526c 2201 builds/lanssh_1.0-1_all.main/usr/lib/lanssh/liblocal/argsck.py
  cb39daa2b0b9cdc69a11dce07a7dc16ca43e2c192afd8508614e990b1ffe8ec3 7273 builds/lanssh_1.0-1_all.main/usr/lib/lanssh/lanssh.py
  9e2f464d000ae70f9d49ea7603387ad3b6df4413f21919a04eda24ce2dee2dfe 499 builds/lanssh_1.0-1_all.main/DEBIAN/control
- abf74584bc5c52208cbd87d6044ccb8b782c342aae2062d741bf0a54c43182e3 2006 dists/stable/main/binary-all/Release
+ 42c06c9f134123f9ce2889da3c75ff1945aa1d22c3df458691eddf58a276518c 12896 dists/stable/main/binary-all/Release
  2d926c176042bcea96a36aad037f740f3e3fb9f81055d1b12f1a909664ff67b8 516 dists/stable/main/binary-all/Packages.gz
  819a4006e8dbfa3a3144ed78563b60047af43afbc10673650375703c04a41231 719 dists/stable/main/binary-all/Packages
- a259171018dea4595f1c898974d89cd07115751b0f2edababa86ef758ade9b57 2008 dists/stable/termux/binary-all/Release
+ 42c06c9f134123f9ce2889da3c75ff1945aa1d22c3df458691eddf58a276518c 12896 dists/stable/termux/binary-all/Release
  ce4dd946e48c990b0a6cac202b2f0d34c747d5dc861c54081d2f6234d5626110 515 dists/stable/termux/binary-all/Packages.gz
  e21de49ab25b2bee037f51dfcf65b84aebab13bf21220b40c97334e16c7331ad 716 dists/stable/termux/binary-all/Packages
  367656c2a76bec873e40de377556ecda7d252b429c23c0369f4bcc18b1ba4674 10864 pool/main/lanssh_1.0-1_all.main.deb
- 1b6b64bc2541d100666367b43c7a285cd7dbb132e8c85d6a1a04b4ab25d6f64e 10864 pool/termux/lanssh_1.0-1_all.termux.deb
+ f763cb751935251f9409244a1ec3b930ee3832cd2aebf7c41df57a50f564db58 10920 pool/termux/lanssh_1.0-1_all.termux.deb
  c5ef1b134f747166112374221cdf4076292664b637d56b641e9973e179f611d9 809 generate-release.sh
