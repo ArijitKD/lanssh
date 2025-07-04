@@ -21,4 +21,4 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
-exec /usr/bin/python3 /usr/lib/lanssh/lanssh.py "$@"
+exec $HOME/../usr/bin/python3 $HOME/../usr/lib/lanssh/lanssh.py "$@"
